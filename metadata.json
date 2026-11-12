@@ -1,0 +1,6 @@
+{
+  "name": "TOLK IMPORTADOS",
+  "description": "Gestión privada de pedidos, finanzas, seña y cálculo de balances optimizada para celulares y escritorio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

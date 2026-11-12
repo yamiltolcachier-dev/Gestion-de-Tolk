@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOLK IMPORTADOS | Gestión Privada de Pedidos</title>
+    <!-- Favicon SVG hexagonal dorado -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f7df8b'/%3E%3Cstop offset='50%25' stop-color='%23d4af37'/%3E%3Cstop offset='100%25' stop-color='%23996515'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='50,4 92,28 92,72 50,96 8,72 8,28' fill='%230b0c0e' stroke='url(%23g)' stroke-width='7'/%3E%3Cline x1='26' y1='35' x2='74' y2='35' stroke='url(%23g)' stroke-width='5'/%3E%3Ctext x='50' y='57' text-anchor='middle' fill='url(%23g)' font-family='sans-serif' font-weight='900' font-size='21' letter-spacing='1'%3ETOL-K%3C/text%3E%3Cline x1='26' y1='66' x2='74' y2='66' stroke='url(%23g)' stroke-width='5'/%3E%3C/svg%3E">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter & Oswald para detalles condensados -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Oswald', 'sans-serif'],
+                    },
+                    colors: {
+                        obsidian: {
+                            950: '#08090b',
+                            900: '#0b0c0e',
+                            850: '#101216',
+                            800: '#14171c',
+                            700: '#1c2026',
+                            600: '#272c35',
+                        },
+                        gold: {
+                            100: '#fbf3d5',
+                            200: '#f7e5a8',
+                            300: '#f3d06b',
+                            400: '#e5be49',
+                            500: '#d4af37',
+                            600: '#b8860b',
+                            700: '#8c6508',
+                            900: '#3d2b03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0c0e;
+            color: #f4f4f6;
+        }
+        /* Ocultar flechas en inputs numéricos */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        /* Scrollbars oscuros elegantes */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #101216;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #272c35;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #b8860b;
+        }
+        /* Brillo metálico sutil para el texto TOLK */
+        .gold-text-gradient {
+            background: linear-gradient(135deg, #f7e5a8 0%, #d4af37 50%, #b8860b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 25px -5px rgba(212, 175, 55, 0.14);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-gold-500 selection:text-obsidian-950">
+
+    <!-- Definiciones SVG Globales para Reutilizar el Degradado Dorado Metálico -->
+    <svg width="0" height="0" class="hidden" aria-hidden="true">
+        <defs>
+            <linearGradient id="tolkGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#faeaad" />
+                <stop offset="35%" stop-color="#e5be49" />
+                <stop offset="70%" stop-color="#c9961a" />
+                <stop offset="100%" stop-color="#f3d06b" />
+            </linearGradient>
+            <linearGradient id="tolkGoldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fff0b8" />
+                <stop offset="50%" stop-color="#d4af37" />
+                <stop offset="100%" stop-color="#966909" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Barra Superior (Header Dark Luxury) -->
+    <header class="bg-obsidian-950/95 backdrop-blur-md text-slate-100 sticky top-0 z-30 border-b border-obsidian-600/80 shadow-lg">
+        <!-- Línea decorativa superior dorada fina -->
+        <div class="h-[2px] w-full bg-gradient-to-r from-transparent via-gold-500/70 to-transparent"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-3.5 gap-3">
+                
+                <!-- Identidad de Marca: Logo Hexagonal TOL-K + Nombre Oficial -->
+                <div class="flex items-center gap-3.5 w-full sm:w-auto justify-between sm:justify-start">
+                    <div class="flex items-center gap-3.5">
+                        <!-- Logo SVG Recreación Fiel -->
+                        <div class="relative flex-shrink-0 w-12 h-13 sm:w-14 sm:h-15 flex items-center justify-center drop-shadow-[0_2px_10px_rgba(212,175,55,0.25)]">
+                            <svg viewBox="0 0 120 132" class="w-12 h-13 sm:w-14 sm:h-14" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Hexágono Exterior -->
+                                <polygon points="60,5 113,35.5 113,96.5 60,127 7,96.5 7,35.5" 
+                                         fill="#0b0c0e" 
+                                         stroke="url(#tolkGoldStroke)" 
+                                         stroke-width="5.5" 
+                                         stroke-linejoin="miter"/>
+                                <!-- Filete interior sutil -->
+                                <polygon points="60,12 106.5,39 106.5,93 60,120 13.5,93 13.5,39" 
+                                         fill="none" 
+                                         stroke="url(#tolkGoldGrad)" 
+                                         stroke-width="0.8" 
+                                         opacity="0.45"/>
+                                <!-- Barra horizontal superior -->
+                                <rect x="27" y="42" width="66" height="4.2" rx="1" fill="url(#tolkGoldGrad)"/>
+                                <!-- Texto TOL-K condensado -->
+                                <text x="60" y="75.5" 
+                                      text-anchor="middle" 
+                                      fill="url(#tolkGoldGrad)" 
+                                      font-family="'Oswald', 'Arial Narrow', sans-serif" 
+                                      font-weight="700" 
+                                      font-size="27" 
+                                      letter-spacing="1.2">TOL-K</text>
+                                <!-- Barra horizontal inferior -->
+                                <rect x="27" y="85" width="66" height="4.2" rx="1" fill="url(#tolkGoldGrad)"/>
+                            </svg>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h1 class="text-lg sm:text-xl font-bold tracking-wider gold-text-gradient uppercase">TOLK IMPORTADOS</h1>
+                                <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-widest bg-gold-500/10 text-gold-300 border border-gold-500/30">
+                                    Privado
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                                Gestión Privada de Pedidos y Finanzas
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botón Nuevo Pedido Móvil -->
+                    <button onclick="abrirModalPedido()" class="sm:hidden bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-400 hover:to-gold-500 text-obsidian-950 font-bold px-3.5 py-2 rounded-xl text-sm flex items-center gap-1.5 shadow-md transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Nuevo
+                    </button>
+                </div>
+
+                <!-- Acciones de Respaldo y Botón Principal -->
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                    <!-- Exportar Excel (CSV) -->
+                    <button onclick="exportarCSV()" title="Descargar tabla compatible con Excel" class="bg-obsidian-800 hover:bg-obsidian-700 text-slate-200 border border-obsidian-600 hover:border-gold-500/40 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
+                        <span>Excel</span>
+                    </button>
+
+                    <!-- Respaldo JSON (Exportar / Importar) -->
+                    <div class="relative inline-block">
+                        <button onclick="toggleMenuRespaldo()" id="btnRespaldo" class="bg-obsidian-800 hover:bg-obsidian-700 text-slate-200 border border-obsidian-600 hover:border-gold-500/40 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Respaldo</span>
+                        </button>
+                        <!-- Dropdown Respaldo Oscuro -->
+                        <div id="menuRespaldo" class="hidden absolute right-0 mt-2 w-60 bg-obsidian-800 rounded-xl shadow-2xl border border-obsidian-600 py-1.5 z-40 text-slate-200 text-sm">
+                            <button onclick="exportarJSON(); toggleMenuRespaldo();" class="w-full text-left px-4 py-2.5 hover:bg-obsidian-700 flex items-center gap-2.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Guardar copia (.JSON)
+                            </button>
+                            <label class="w-full text-left px-4 py-2.5 hover:bg-obsidian-700 flex items-center gap-2.5 cursor-pointer transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Restaurar copia (.JSON)
+                                <input type="file" id="inputImportarJSON" accept=".json" class="hidden" onchange="importarJSON(event)">
+                            </label>
+                            <div class="border-t border-obsidian-600 my-1"></div>
+                            <button onclick="cargarDatosEjemplo(); toggleMenuRespaldo();" class="w-full text-left px-4 py-2 hover:bg-obsidian-700 text-xs text-slate-400 hover:text-gold-300 flex items-center gap-2 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                Cargar pedidos de prueba
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botón Nuevo Pedido Desktop -->
+                    <button onclick="abrirModalPedido()" class="hidden sm:flex bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-obsidian-950 font-bold px-4 py-2 rounded-xl text-sm items-center gap-2 shadow-md shadow-gold-500/10 transition active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Nuevo Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- 1. Panel de Resumen (Dashboard Superior Dark Luxury) -->
+        <section aria-label="Resumen Financiero" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Total Ventas -->
+            <div class="bg-obsidian-800 rounded-2xl p-4 sm:p-5 border border-obsidian-600/80 shadow-lg flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Ventas</span>
+                    <div class="p-2 bg-obsidian-700 text-gold-400 rounded-lg border border-obsidian-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="statTotalVentas" class="text-2xl font-bold text-white tracking-tight">$0</p>
+                    <p id="statCantPedidos" class="text-xs text-slate-400 mt-1">0 pedidos registrados</p>
+                </div>
+            </div>
+
+            <!-- Total Señas / Entregado -->
+            <div class="bg-obsidian-800 rounded-2xl p-4 sm:p-5 border border-obsidian-600/80 shadow-lg flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Señas / Cobrado</span>
+                    <div class="p-2 bg-gold-500/10 text-gold-400 rounded-lg border border-gold-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="statTotalSenas" class="text-2xl font-bold text-gold-300 tracking-tight">$0</p>
+                    <p class="text-xs text-slate-400 mt-1">Dinero ya recibido</p>
+                </div>
+            </div>
+
+            <!-- Saldo Pendiente por Cobrar -->
+            <div class="bg-obsidian-800 rounded-2xl p-4 sm:p-5 border border-obsidian-600/80 shadow-lg flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Saldo a Cobrar</span>
+                    <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="statSaldoPendiente" class="text-2xl font-bold text-amber-400 tracking-tight">$0</p>
+                    <p id="statPedidosConSaldo" class="text-xs text-slate-400 mt-1">0 clientes con saldo</p>
+                </div>
+            </div>
+
+            <!-- Costo Total Proveedores -->
+            <div class="bg-obsidian-800 rounded-2xl p-4 sm:p-5 border border-obsidian-600/80 shadow-lg flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Costo Proveedores</span>
+                    <div class="p-2 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="statTotalCosto" class="text-2xl font-bold text-slate-200 tracking-tight">$0</p>
+                    <p class="text-xs text-slate-400 mt-1">Inversión en mercadería</p>
+                </div>
+            </div>
+
+            <!-- Ganancia Neta Total / Balance (Tarjeta Destacada con borde dorado) -->
+            <div class="bg-gradient-to-br from-obsidian-800 via-obsidian-850 to-obsidian-950 text-white rounded-2xl p-4 sm:p-5 border border-gold-500/40 gold-border-glow flex flex-col justify-between sm:col-span-2 lg:col-span-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gold-400">Balance / Ganancia</span>
+                    <div class="p-2 bg-emerald-500/15 text-emerald-400 rounded-lg border border-emerald-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <p id="statGananciaTotal" class="text-2xl font-bold text-emerald-400 tracking-tight">$0</p>
+                    <p id="statMargenPromedio" class="text-xs text-slate-400 mt-1">Ganancia neta estimada</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Barra de Búsqueda, Filtros y Modo de Vista (Agrupación por Proveedor) -->
+        <section class="bg-obsidian-800 rounded-2xl p-4 border border-obsidian-600/80 shadow-lg space-y-3.5">
+            <div class="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center">
+                <!-- Buscador -->
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </div>
+                    <input type="text" id="inputBuscar" oninput="renderizarPedidos()" placeholder="Buscar por cliente, artículo, proveedor, color o número..." class="w-full pl-10 pr-9 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition">
+                    <button id="btnLimpiarBusqueda" onclick="limpiarBusqueda()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-gold-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+
+                <!-- Switch / Pestañas de Organización: Lista General vs Agrupar por Proveedor -->
+                <div class="flex bg-obsidian-950 p-1 rounded-xl border border-obsidian-600 self-start lg:self-auto w-full sm:w-auto">
+                    <button type="button" id="btnVistaLista" onclick="cambiarModoVista('lista')" class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-gold-500 text-obsidian-950 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        Lista General
+                    </button>
+                    <button type="button" id="btnVistaProveedor" onclick="cambiarModoVista('proveedor')" class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Agrupar por Proveedor
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fila secundaria de filtros específicos -->
+            <div class="flex flex-wrap items-center gap-2.5 pt-1 border-t border-obsidian-700/80">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Filtrar por:</span>
+
+                <!-- Filtro Dinámico de Proveedor -->
+                <select id="filtroProveedor" onchange="renderizarPedidos()" class="bg-obsidian-900 border border-obsidian-600 text-slate-200 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-gold-500">
+                    <option value="todos">Todos los proveedores</option>
+                </select>
+
+                <!-- Filtro de Estado -->
+                <select id="filtroEstado" onchange="renderizarPedidos()" class="bg-obsidian-900 border border-obsidian-600 text-slate-200 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-gold-500">
+                    <option value="todos">Todos los estados</option>
+                    <option value="Pendiente de pedir">🟡 Pendiente de pedir</option>
+                    <option value="Pedido al proveedor">🔵 Pedido al proveedor</option>
+                    <option value="Listo para entregar">🟣 Listo para entregar</option>
+                    <option value="Entregado">🟢 Entregado</option>
+                </select>
+
+                <!-- Filtro de Pago -->
+                <select id="filtroPago" onchange="renderizarPedidos()" class="bg-obsidian-900 border border-obsidian-600 text-slate-200 text-xs sm:text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-gold-500">
+                    <option value="todos">Todos los pagos</option>
+                    <option value="pendiente">Con saldo pendiente</option>
+                    <option value="pagado">Pagado 100%</option>
+                </select>
+
+                <!-- Botón Resetear Filtros (visible solo cuando hay filtros activos) -->
+                <button id="btnResetFiltros" onclick="resetearFiltros()" class="hidden text-xs text-gold-400 hover:text-gold-300 underline underline-offset-2 ml-auto px-2 py-1">
+                    Limpiar filtros
+                </button>
+            </div>
+        </section>
+
+        <!-- 3A. Vista Lista General (Tabla Desktop + Tarjetas Móvil) -->
+        <section id="contenedorVistaLista" class="bg-obsidian-800 rounded-2xl border border-obsidian-600/80 shadow-xl overflow-hidden">
+            <!-- Vista Desktop (Tabla completa) -->
+            <div class="hidden lg:block overflow-x-auto table-container">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-obsidian-900/90 border-b border-obsidian-600 text-[11px] font-semibold uppercase tracking-wider text-gold-300/90">
+                            <th class="py-3.5 px-4">Cliente / Estado</th>
+                            <th class="py-3.5 px-4">Artículo</th>
+                            <th class="py-3.5 px-3 text-center">Nro / Talle</th>
+                            <th class="py-3.5 px-3">Color</th>
+                            <th class="py-3.5 px-4">Proveedor</th>
+                            <th class="py-3.5 px-4 text-right">Precio Venta</th>
+                            <th class="py-3.5 px-4 text-right">Seña / Entrega</th>
+                            <th class="py-3.5 px-4 text-right">Precio Costo</th>
+                            <th class="py-3.5 px-4 text-right bg-obsidian-950/50">Balance</th>
+                            <th class="py-3.5 px-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPedidosBody" class="divide-y divide-obsidian-700/70 text-sm">
+                        <!-- Filas generadas dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Vista Móvil y Tablet (Tarjetas organizadas) -->
+            <div id="listaPedidosMovil" class="lg:hidden divide-y divide-obsidian-700/70">
+                <!-- Tarjetas generadas dinámicamente -->
+            </div>
+        </section>
+
+        <!-- 3B. Vista Agrupada por Proveedor (Bloques Colapsables con Totales Mayoristas) -->
+        <section id="contenedorVistaProveedores" class="hidden space-y-4">
+            <!-- Grupos por proveedor generados dinámicamente -->
+        </section>
+
+        <!-- Estado Vacío Global -->
+        <section id="estadoVacio" class="hidden bg-obsidian-800 rounded-2xl border border-obsidian-600/80 py-16 px-4 text-center shadow-lg">
+            <div class="w-16 h-16 bg-obsidian-900 border border-gold-500/30 text-gold-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-white">No hay pedidos para mostrar</h3>
+            <p class="text-sm text-slate-400 mt-1 max-w-sm mx-auto">Comienza cargando un pedido para TOLK IMPORTADOS o ajusta los filtros de búsqueda.</p>
+            <button onclick="abrirModalPedido()" class="mt-5 inline-flex items-center gap-2 bg-gradient-to-r from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-obsidian-950 text-sm font-bold px-5 py-2.5 rounded-xl transition shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                Cargar primer pedido
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer sutil de marca -->
+    <footer class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 border-t border-obsidian-700/60 mt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+        <div class="flex items-center gap-2">
+            <span class="font-semibold text-gold-400/80 tracking-wider">TOLK IMPORTADOS</span>
+            <span>•</span>
+            <span>Sistema Privado de Control de Pedidos</span>
+        </div>
+        <div>Los datos se almacenan de forma segura en este navegador.</div>
+    </footer>
+
+    <!-- Modal: Formulario de Carga / Edición Completa de Pedido -->
+    <div id="modalPedido" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity" onclick="cerrarModalPedido()"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-2xl bg-obsidian-800 text-left shadow-2xl transition-all sm:my-8 w-full max-w-2xl border border-gold-500/40">
+                
+                <!-- Banner de Modo Edición (Visible solo al editar) -->
+                <div id="bannerModoEdicion" class="hidden bg-gold-500/15 border-b border-gold-500/30 px-6 py-2.5 flex items-center gap-2 text-gold-300 text-xs font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    <span id="textoModoEdicion">Editando pedido guardado. Modifica cualquier campo y guarda los cambios.</span>
+                </div>
+
+                <!-- Cabecera Modal -->
+                <div class="bg-obsidian-950 px-6 py-4 flex items-center justify-between border-b border-obsidian-700">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        </div>
+                        <div>
+                            <h3 id="modalTitulo" class="text-lg font-bold text-white">Nuevo Pedido</h3>
+                            <p id="modalSubtitulo" class="text-xs text-slate-400">Completa los datos del encargo y calcula el balance al instante</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="cerrarModalPedido()" class="text-slate-400 hover:text-gold-400 p-1.5 rounded-lg hover:bg-obsidian-800 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+
+                <!-- Formulario -->
+                <form id="formPedido" onsubmit="guardarPedido(event)" class="p-6 space-y-5">
+                    <input type="hidden" id="pedidoId">
+
+                    <!-- Fila 1: Cliente y Estado -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="campoCliente" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Cliente *</label>
+                            <input type="text" id="campoCliente" required placeholder="Ej: María Gómez" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                        </div>
+                        <div>
+                            <label for="campoEstado" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Estado</label>
+                            <select id="campoEstado" class="w-full px-3 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                                <option value="Pendiente de pedir">🟡 Pendiente de pedir</option>
+                                <option value="Pedido al proveedor">🔵 Pedido al proveedor</option>
+                                <option value="Listo para entregar">🟣 Listo para entregar</option>
+                                <option value="Entregado">🟢 Entregado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Artículo, Número y Color -->
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                        <div class="sm:col-span-6">
+                            <label for="campoArticulo" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Artículo *</label>
+                            <input type="text" id="campoArticulo" required placeholder="Ej: Zapatillas Importadas Air" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label for="campoNumero" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Número / Talle</label>
+                            <input type="text" id="campoNumero" placeholder="Ej: 38 / L" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <label for="campoColor" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Color</label>
+                            <input type="text" id="campoColor" placeholder="Ej: Negro / Dorado" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Proveedor con autocompletado y Notas opcionales -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="campoProveedor" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Proveedor</label>
+                            <input type="text" id="campoProveedor" list="listaProveedores" placeholder="Ej: Importadora Central / Mayorista" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                            <datalist id="listaProveedores"></datalist>
+                        </div>
+                        <div>
+                            <label for="campoNotas" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Observaciones (Opcional)</label>
+                            <input type="text" id="campoNotas" placeholder="Ej: Envío a domicilio / Contacto IG" class="w-full px-3.5 py-2.5 bg-obsidian-900 border border-obsidian-600 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500">
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Valores Numéricos -->
+                    <div class="bg-obsidian-900/90 p-4 rounded-2xl border border-obsidian-600 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Precio Venta -->
+                            <div>
+                                <label for="campoPrecioVenta" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Precio Venta ($) *</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold">$</span>
+                                    <input type="number" id="campoPrecioVenta" step="0.01" min="0" required placeholder="0" oninput="recalcularBalanceModal()" class="w-full pl-7 pr-3 py-2.5 bg-obsidian-800 border border-obsidian-600 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-gold-500">
+                                </div>
+                            </div>
+
+                            <!-- Seña o entrega -->
+                            <div>
+                                <label for="campoSena" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Seña o entrega ($)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gold-400 font-semibold">$</span>
+                                    <input type="number" id="campoSena" step="0.01" min="0" placeholder="0" oninput="recalcularBalanceModal()" class="w-full pl-7 pr-3 py-2.5 bg-obsidian-800 border border-obsidian-600 rounded-xl text-sm font-bold text-gold-300 focus:outline-none focus:border-gold-500">
+                                </div>
+                            </div>
+
+                            <!-- Precio Costo -->
+                            <div>
+                                <label for="campoPrecioCosto" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Precio Costo ($)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-rose-400 font-semibold">$</span>
+                                    <input type="number" id="campoPrecioCosto" step="0.01" min="0" placeholder="0" oninput="recalcularBalanceModal()" class="w-full pl-7 pr-3 py-2.5 bg-obsidian-800 border border-obsidian-600 rounded-xl text-sm font-bold text-rose-300 focus:outline-none focus:border-rose-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caja de Cálculo Automático de Balance -->
+                        <div class="pt-3 border-t border-obsidian-700 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Balance Ganancia Neta -->
+                            <div class="bg-obsidian-800 p-3 rounded-xl border border-obsidian-600 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Balance (Ganancia Neta)</span>
+                                    <span class="text-[11px] text-slate-500">Precio Venta - Precio Costo</span>
+                                </div>
+                                <span id="previewGanancia" class="text-lg font-bold text-emerald-400">$0</span>
+                            </div>
+
+                            <!-- Saldo Pendiente del Cliente -->
+                            <div class="bg-obsidian-800 p-3 rounded-xl border border-obsidian-600 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Saldo Restante Cliente</span>
+                                    <span class="text-[11px] text-slate-500">Precio Venta - Seña</span>
+                                </div>
+                                <span id="previewSaldoCliente" class="text-lg font-bold text-amber-400">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones Acción Modal -->
+                    <div class="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-2">
+                        <button type="button" id="btnCancelarModal" onclick="cerrarModalPedido()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-obsidian-600 bg-obsidian-900 text-slate-300 text-sm font-medium hover:bg-obsidian-700 hover:text-white transition">
+                            Cancelar
+                        </button>
+                        <button type="submit" id="btnGuardarModal" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-obsidian-950 text-sm font-bold shadow-md transition active:scale-95">
+                            Guardar Pedido
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación Personalizado -->
+    <div id="modalConfirmacion" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-xs" onclick="cerrarModalConfirmacion()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-obsidian-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-obsidian-600 text-center space-y-4">
+                <div id="confirmIcono" class="w-12 h-12 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </div>
+                <div>
+                    <h3 id="confirmTitulo" class="text-lg font-bold text-white">¿Eliminar pedido?</h3>
+                    <p id="confirmMensaje" class="text-sm text-slate-400 mt-1">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="flex gap-2.5 pt-2">
+                    <button onclick="cerrarModalConfirmacion()" class="flex-1 py-2.5 px-4 rounded-xl border border-obsidian-600 bg-obsidian-900 text-slate-300 text-sm font-medium hover:bg-obsidian-700 transition">
+                        Cancelar
+                    </button>
+                    <button id="btnConfirmarAccion" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-obsidian-950 text-white px-4 py-3 rounded-xl shadow-2xl border border-gold-500/50 flex items-center gap-3 text-sm font-medium">
+            <span id="toastIcono" class="text-gold-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span id="toastMensaje">Operación realizada</span>
+        </div>
+    </div>
+
+    <!-- Lógica de la Aplicación -->
+    <script>
+        // Clave de almacenamiento en LocalStorage (mantiene compatibilidad con datos previos)
+        const STORAGE_KEY = 'emprendedor_pedidos_v1';
+
+        // Estado global
+        let pedidos = [];
+        let modoVista = 'lista'; // 'lista' | 'proveedor'
+        let gruposColapsados = {}; // Guarda qué proveedores están contraídos en la vista agrupada
+        let accionConfirmadaCallback = null;
+
+        // Formateador de moneda con separador de miles ($)
+        function formatearPlata(valor) {
+            const num = parseFloat(valor) || 0;
+            return '$' + num.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        // Inicialización al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarDesdeStorage();
+            actualizarTodo();
+
+            // Cerrar dropdown de respaldo si se hace clic fuera
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('menuRespaldo');
+                const btn = document.getElementById('btnRespaldo');
+                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+
+            // Cerrar modales con tecla Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    cerrarModalPedido();
+                    cerrarModalConfirmacion();
+                }
+            });
+        });
+
+        // Cargar datos desde LocalStorage
+        function cargarDesdeStorage() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                pedidos = data ? JSON.parse(data) : [];
+            } catch (error) {
+                console.error('Error al leer LocalStorage:', error);
+                pedidos = [];
+            }
+        }
+
+        // Guardar datos en LocalStorage
+        function guardarEnStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
+            } catch (error) {
+                console.error('Error al guardar en LocalStorage:', error);
+                mostrarToast('Error al guardar localmente', 'error');
+            }
+        }
+
+        // Actualizar métricas, selectores dinámicos y lista
+        function actualizarTodo() {
+            actualizarDashboard();
+            actualizarListasProveedores();
+            renderizarPedidos();
+        }
+
+        // 1. Cálculo de Métricas del Dashboard
+        function actualizarDashboard() {
+            let totalVentas = 0;
+            let totalSenas = 0;
+            let saldoPendiente = 0;
+            let totalCosto = 0;
+            let pedidosConSaldo = 0;
+
+            pedidos.forEach(p => {
+                const venta = parseFloat(p.precioVenta) || 0;
+                const sena = parseFloat(p.sena) || 0;
+                const costo = parseFloat(p.precioCosto) || 0;
+                const saldo = Math.max(0, venta - sena);
+
+                totalVentas += venta;
+                totalSenas += sena;
+                saldoPendiente += saldo;
+                totalCosto += costo;
+
+                if (saldo > 0) pedidosConSaldo++;
+            });
+
+            const gananciaTotal = totalVentas - totalCosto;
+            const margen = totalVentas > 0 ? Math.round((gananciaTotal / totalVentas) * 100) : 0;
+
+            document.getElementById('statTotalVentas').textContent = formatearPlata(totalVentas);
+            document.getElementById('statCantPedidos').textContent = `${pedidos.length} ${pedidos.length === 1 ? 'pedido registrado' : 'pedidos registrados'}`;
+
+            document.getElementById('statTotalSenas').textContent = formatearPlata(totalSenas);
+
+            document.getElementById('statSaldoPendiente').textContent = formatearPlata(saldoPendiente);
+            document.getElementById('statPedidosConSaldo').textContent = `${pedidosConSaldo} ${pedidosConSaldo === 1 ? 'cliente con saldo' : 'clientes con saldo'}`;
+
+            document.getElementById('statTotalCosto').textContent = formatearPlata(totalCosto);
+
+            const elGanancia = document.getElementById('statGananciaTotal');
+            elGanancia.textContent = formatearPlata(gananciaTotal);
+            elGanancia.className = `text-2xl font-bold tracking-tight ${gananciaTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+            document.getElementById('statMargenPromedio').textContent = `Margen promedio: ${margen}%`;
+        }
+
+        // Actualizar tanto el datalist de autocompletado como el <select> de filtro de proveedores
+        function actualizarListasProveedores() {
+            const datalist = document.getElementById('listaProveedores');
+            const selectFiltro = document.getElementById('filtroProveedor');
+            const valorSeleccionadoPrevio = selectFiltro.value;
+
+            const proveedoresUnicos = [...new Set(pedidos.map(p => p.proveedor?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+            const haySinProveedor = pedidos.some(p => !p.proveedor || !p.proveedor.trim());
+
+            // Datalist del formulario
+            datalist.innerHTML = proveedoresUnicos.map(prov => `<option value="${escaparHTML(prov)}">`).join('');
+
+            // Select de filtro en la barra superior
+            let opcionesHTML = `<option value="todos">Todos los proveedores (${pedidos.length})</option>`;
+            proveedoresUnicos.forEach(prov => {
+                const count = pedidos.filter(p => (p.proveedor?.trim() || '') === prov).length;
+                opcionesHTML += `<option value="${escaparHTML(prov)}">${escaparHTML(prov)} (${count})</option>`;
+            });
+            if (haySinProveedor) {
+                const countSin = pedidos.filter(p => !p.proveedor || !p.proveedor.trim()).length;
+                opcionesHTML += `<option value="__sin_proveedor__">Sin proveedor asignado (${countSin})</option>`;
+            }
+
+            selectFiltro.innerHTML = opcionesHTML;
+
+            // Mantener selección previa si todavía existe
+            if ([...selectFiltro.options].some(opt => opt.value === valorSeleccionadoPrevio)) {
+                selectFiltro.value = valorSeleccionadoPrevio;
+            } else {
+                selectFiltro.value = 'todos';
+            }
+        }
+
+        // Cambiar entre Vista Lista General y Vista Agrupada por Proveedor
+        function cambiarModoVista(nuevoModo) {
+            modoVista = nuevoModo;
+            const btnLista = document.getElementById('btnVistaLista');
+            const btnProv = document.getElementById('btnVistaProveedor');
+
+            if (modoVista === 'lista') {
+                btnLista.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-gold-500 text-obsidian-950 shadow-sm';
+                btnProv.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200';
+            } else {
+                btnProv.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition bg-gold-500 text-obsidian-950 shadow-sm';
+                btnLista.className = 'flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition text-slate-400 hover:text-slate-200';
+            }
+
+            renderizarPedidos();
+        }
+
+        // Obtener estilos de badge oscuro según estado
+        function obtenerBadgeEstado(estado) {
+            switch (estado) {
+                case 'Pendiente de pedir':
+                    return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+                case 'Pedido al proveedor':
+                    return 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+                case 'Listo para entregar':
+                    return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
+                case 'Entregado':
+                    return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+                default:
+                    return 'bg-obsidian-700 text-slate-300 border-obsidian-600';
+            }
+        }
+
+        // Filtrar pedidos según todos los criterios activos
+        function obtenerPedidosFiltrados() {
+            const textoBusqueda = document.getElementById('inputBuscar').value.toLowerCase().trim();
+            const filtroProveedor = document.getElementById('filtroProveedor').value;
+            const filtroEstado = document.getElementById('filtroEstado').value;
+            const filtroPago = document.getElementById('filtroPago').value;
+
+            // Mostrar/ocultar botón limpiar búsqueda
+            const btnLimpiar = document.getElementById('btnLimpiarBusqueda');
+            btnLimpiar.classList.toggle('hidden', textoBusqueda.length === 0);
+
+            // Mostrar/ocultar botón resetear filtros
+            const hayFiltrosActivos = textoBusqueda !== '' || filtroProveedor !== 'todos' || filtroEstado !== 'todos' || filtroPago !== 'todos';
+            document.getElementById('btnResetFiltros').classList.toggle('hidden', !hayFiltrosActivos);
+
+            return pedidos.filter(p => {
+                const coincideTexto = !textoBusqueda ||
+                    (p.cliente && p.cliente.toLowerCase().includes(textoBusqueda)) ||
+                    (p.articulo && p.articulo.toLowerCase().includes(textoBusqueda)) ||
+                    (p.proveedor && p.proveedor.toLowerCase().includes(textoBusqueda)) ||
+                    (p.color && p.color.toLowerCase().includes(textoBusqueda)) ||
+                    (p.numero && p.numero.toString().toLowerCase().includes(textoBusqueda)) ||
+                    (p.notas && p.notas.toLowerCase().includes(textoBusqueda));
+
+                const provActual = p.proveedor?.trim() || '';
+                const coincideProveedor = filtroProveedor === 'todos' ||
+                    (filtroProveedor === '__sin_proveedor__' && provActual === '') ||
+                    (provActual === filtroProveedor);
+
+                const coincideEstado = filtroEstado === 'todos' || p.estado === filtroEstado;
+
+                const saldo = (parseFloat(p.precioVenta) || 0) - (parseFloat(p.sena) || 0);
+                const coincidePago = filtroPago === 'todos' ||
+                    (filtroPago === 'pendiente' && saldo > 0) ||
+                    (filtroPago === 'pagado' && saldo <= 0);
+
+                return coincideTexto && coincideProveedor && coincideEstado && coincidePago;
+            });
+        }
+
+        function resetearFiltros() {
+            document.getElementById('inputBuscar').value = '';
+            document.getElementById('filtroProveedor').value = 'todos';
+            document.getElementById('filtroEstado').value = 'todos';
+            document.getElementById('filtroPago').value = 'todos';
+            renderizarPedidos();
+        }
+
+        // Generar HTML de una fila de tabla (reutilizado en Lista General y Vista Agrupada)
+        function generarHTMLFilaTabla(p, ocultarColumnaProveedor = false) {
+            const venta = parseFloat(p.precioVenta) || 0;
+            const sena = parseFloat(p.sena) || 0;
+            const costo = parseFloat(p.precioCosto) || 0;
+            const ganancia = venta - costo;
+            const saldoRestante = venta - sena;
+            const estaPagado = saldoRestante <= 0;
+
+            return `
+            <tr class="hover:bg-obsidian-700/50 transition group">
+                <!-- Cliente / Estado -->
+                <td class="py-3.5 px-4 align-top">
+                    <div class="font-semibold text-white">${escaparHTML(p.cliente)}</div>
+                    ${p.notas ? `<div class="text-[11px] text-slate-400 mt-0.5 italic">${escaparHTML(p.notas)}</div>` : ''}
+                    <div class="mt-1.5">
+                        <select onchange="cambiarEstadoRapido('${p.id}', this.value)" class="text-[11px] font-medium px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none bg-obsidian-900 ${obtenerBadgeEstado(p.estado)}">
+                            <option class="bg-obsidian-900 text-amber-300" value="Pendiente de pedir" ${p.estado === 'Pendiente de pedir' ? 'selected' : ''}>🟡 Pendiente de pedir</option>
+                            <option class="bg-obsidian-900 text-sky-300" value="Pedido al proveedor" ${p.estado === 'Pedido al proveedor' ? 'selected' : ''}>🔵 Pedido al proveedor</option>
+                            <option class="bg-obsidian-900 text-purple-300" value="Listo para entregar" ${p.estado === 'Listo para entregar' ? 'selected' : ''}>🟣 Listo para entregar</option>
+                            <option class="bg-obsidian-900 text-emerald-300" value="Entregado" ${p.estado === 'Entregado' ? 'selected' : ''}>🟢 Entregado</option>
+                        </select>
+                    </div>
+                </td>
+
+                <!-- Artículo -->
+                <td class="py-3.5 px-4 align-top font-medium text-slate-200">
+                    ${escaparHTML(p.articulo)}
+                </td>
+
+                <!-- Número -->
+                <td class="py-3.5 px-3 align-top text-center">
+                    ${p.numero ? `<span class="inline-block bg-obsidian-900 text-gold-300 font-semibold text-xs px-2.5 py-1 rounded-lg border border-obsidian-600">${escaparHTML(p.numero)}</span>` : '<span class="text-slate-600">-</span>'}
+                </td>
+
+                <!-- Color -->
+                <td class="py-3.5 px-3 align-top text-slate-300">
+                    ${p.color ? escaparHTML(p.color) : '<span class="text-slate-600">-</span>'}
+                </td>
+
+                <!-- Proveedor -->
+                ${!ocultarColumnaProveedor ? `
+                <td class="py-3.5 px-4 align-top">
+                    ${p.proveedor ? `<span class="text-xs font-medium text-gold-200 bg-gold-500/10 border border-gold-500/20 px-2.5 py-1 rounded-md">${escaparHTML(p.proveedor)}</span>` : '<span class="text-slate-500 text-xs">Sin asignar</span>'}
+                </td>` : ''}
+
+                <!-- Precio Venta -->
+                <td class="py-3.5 px-4 align-top text-right font-semibold text-white">
+                    ${formatearPlata(venta)}
+                </td>
+
+                <!-- Seña / Entrega -->
+                <td class="py-3.5 px-4 align-top text-right">
+                    <div class="font-semibold text-gold-300">${formatearPlata(sena)}</div>
+                    ${estaPagado 
+                        ? `<span class="inline-flex items-center gap-0.5 text-[10px] font-bold uppercase text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded mt-0.5">Pagado 100%</span>`
+                        : `<span class="text-[11px] font-medium text-amber-400 block mt-0.5">Falta: ${formatearPlata(saldoRestante)}</span>`
+                    }
+                </td>
+
+                <!-- Precio Costo -->
+                <td class="py-3.5 px-4 align-top text-right font-medium text-slate-300">
+                    ${formatearPlata(costo)}
+                </td>
+
+                <!-- Balance (Ganancia neta) -->
+                <td class="py-3.5 px-4 align-top text-right bg-obsidian-900/40">
+                    <span class="font-bold text-sm ${ganancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${ganancia >= 0 ? '+' : ''}${formatearPlata(ganancia)}
+                    </span>
+                    <span class="block text-[10px] text-slate-500 uppercase font-medium">Ganancia</span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="py-3.5 px-4 align-top text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        ${!estaPagado ? `
+                        <button onclick="completarPago('${p.id}')" title="Registrar pago total (Completar saldo)" class="p-1.5 text-emerald-400 hover:bg-emerald-500/15 rounded-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </button>` : ''}
+
+                        <button onclick="copiarResumenWhatsApp('${p.id}')" title="Copiar resumen para WhatsApp" class="p-1.5 text-slate-400 hover:text-white hover:bg-obsidian-700 rounded-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+
+                        <button onclick="editarPedido('${p.id}')" title="Editar pedido" class="p-1.5 text-gold-400 hover:bg-gold-500/15 rounded-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+
+                        <button onclick="confirmarEliminarPedido('${p.id}')" title="Eliminar pedido" class="p-1.5 text-rose-400 hover:bg-rose-500/15 rounded-lg transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }
+
+        // Generar HTML de una tarjeta móvil (reutilizado en Lista General y Vista Agrupada)
+        function generarHTMLTarjetaMovil(p, ocultarProveedor = false) {
+            const venta = parseFloat(p.precioVenta) || 0;
+            const sena = parseFloat(p.sena) || 0;
+            const costo = parseFloat(p.precioCosto) || 0;
+            const ganancia = venta - costo;
+            const saldoRestante = venta - sena;
+            const estaPagado = saldoRestante <= 0;
+
+            return `
+            <div class="p-4 space-y-3 hover:bg-obsidian-700/30 transition">
+                <!-- Cabecera Tarjeta -->
+                <div class="flex justify-between items-start gap-2">
+                    <div>
+                        <h4 class="font-bold text-white text-base">${escaparHTML(p.cliente)}</h4>
+                        <p class="text-sm font-medium text-slate-300 mt-0.5">
+                            ${escaparHTML(p.articulo)}
+                            ${p.numero ? `<span class="text-xs bg-obsidian-900 text-gold-300 border border-obsidian-600 px-2 py-0.5 rounded font-semibold ml-1">N° ${escaparHTML(p.numero)}</span>` : ''}
+                            ${p.color ? `<span class="text-xs text-slate-400 ml-1">• ${escaparHTML(p.color)}</span>` : ''}
+                        </p>
+                        ${p.notas ? `<p class="text-xs text-slate-400 italic mt-0.5">${escaparHTML(p.notas)}</p>` : ''}
+                    </div>
+                    <select onchange="cambiarEstadoRapido('${p.id}', this.value)" class="text-xs font-medium px-2.5 py-1 rounded-full border focus:outline-none bg-obsidian-900 ${obtenerBadgeEstado(p.estado)}">
+                        <option class="bg-obsidian-900" value="Pendiente de pedir" ${p.estado === 'Pendiente de pedir' ? 'selected' : ''}>🟡 Pendiente</option>
+                        <option class="bg-obsidian-900" value="Pedido al proveedor" ${p.estado === 'Pedido al proveedor' ? 'selected' : ''}>🔵 Pedido</option>
+                        <option class="bg-obsidian-900" value="Listo para entregar" ${p.estado === 'Listo para entregar' ? 'selected' : ''}>🟣 Listo</option>
+                        <option class="bg-obsidian-900" value="Entregado" ${p.estado === 'Entregado' ? 'selected' : ''}>🟢 Entregado</option>
+                    </select>
+                </div>
+
+                <!-- Proveedor -->
+                ${(!ocultarProveedor && p.proveedor) ? `
+                <div class="text-xs text-slate-400 flex items-center gap-1.5">
+                    <span class="font-medium text-slate-500">Proveedor:</span>
+                    <span class="bg-gold-500/10 border border-gold-500/20 px-2 py-0.5 rounded text-gold-200 font-medium">${escaparHTML(p.proveedor)}</span>
+                </div>` : ''}
+
+                <!-- Grid Financiero -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-obsidian-900/90 p-3 rounded-xl border border-obsidian-600/80 text-xs">
+                    <div>
+                        <span class="text-slate-500 block">Precio Venta</span>
+                        <span class="font-bold text-white text-sm">${formatearPlata(venta)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block">Seña / Entrega</span>
+                        <span class="font-bold text-gold-300 text-sm">${formatearPlata(sena)}</span>
+                        ${estaPagado 
+                            ? `<span class="block text-[10px] font-bold text-emerald-400">Pagado 100%</span>`
+                            : `<span class="block text-[10px] font-semibold text-amber-400">Falta: ${formatearPlata(saldoRestante)}</span>`
+                        }
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block">Precio Costo</span>
+                        <span class="font-semibold text-slate-300 text-sm">${formatearPlata(costo)}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-500 block">Balance (Ganancia)</span>
+                        <span class="font-bold text-sm ${ganancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${ganancia >= 0 ? '+' : ''}${formatearPlata(ganancia)}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Botones Móvil -->
+                <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
+                    ${!estaPagado ? `
+                    <button onclick="completarPago('${p.id}')" class="px-3 py-1.5 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Saldar resto
+                    </button>` : ''}
+
+                    <button onclick="copiarResumenWhatsApp('${p.id}')" class="px-3 py-1.5 bg-obsidian-700 text-slate-200 border border-obsidian-600 rounded-lg text-xs font-medium flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        Copiar
+                    </button>
+
+                    <button onclick="editarPedido('${p.id}')" class="px-3 py-1.5 bg-gold-500/15 text-gold-300 border border-gold-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        Editar
+                    </button>
+
+                    <button onclick="confirmarEliminarPedido('${p.id}')" class="px-3 py-1.5 bg-rose-500/15 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-medium">
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+            `;
+        }
+
+        // 2. Renderizar Vista Principal (Lista General o Agrupada por Proveedor)
+        function renderizarPedidos() {
+            const pedidosFiltrados = obtenerPedidosFiltrados();
+
+            const secLista = document.getElementById('contenedorVistaLista');
+            const secProveedores = document.getElementById('contenedorVistaProveedores');
+            const estadoVacio = document.getElementById('estadoVacio');
+
+            if (pedidosFiltrados.length === 0) {
+                secLista.classList.add('hidden');
+                secProveedores.classList.add('hidden');
+                estadoVacio.classList.remove('hidden');
+                return;
+            }
+
+            estadoVacio.classList.add('hidden');
+
+            if (modoVista === 'lista') {
+                secProveedores.classList.add('hidden');
+                secLista.classList.remove('hidden');
+
+                const tbody = document.getElementById('tablaPedidosBody');
+                const listaMovil = document.getElementById('listaPedidosMovil');
+
+                tbody.innerHTML = pedidosFiltrados.map(p => generarHTMLFilaTabla(p, false)).join('');
+                listaMovil.innerHTML = pedidosFiltrados.map(p => generarHTMLTarjetaMovil(p, false)).join('');
+            } else {
+                secLista.classList.add('hidden');
+                secProveedores.classList.remove('hidden');
+                renderizarVistaAgrupadaPorProveedor(pedidosFiltrados);
+            }
+        }
+
+        // 3. Renderizar Bloques Colapsables Agrupados por Proveedor
+        function renderizarVistaAgrupadaPorProveedor(pedidosFiltrados) {
+            const contenedor = document.getElementById('contenedorVistaProveedores');
+
+            // Agrupar pedidos por nombre de proveedor
+            const mapaGrupos = new Map();
+            pedidosFiltrados.forEach(p => {
+                const nombreProv = (p.proveedor && p.proveedor.trim()) ? p.proveedor.trim() : 'Sin proveedor asignado';
+                if (!mapaGrupos.has(nombreProv)) {
+                    mapaGrupos.set(nombreProv, []);
+                }
+                mapaGrupos.get(nombreProv).push(p);
+            });
+
+            // Ordenar alfabéticamente dejando "Sin proveedor asignado" al final
+            const proveedoresOrdenados = [...mapaGrupos.keys()].sort((a, b) => {
+                if (a === 'Sin proveedor asignado') return 1;
+                if (b === 'Sin proveedor asignado') return -1;
+                return a.localeCompare(b);
+            });
+
+            contenedor.innerHTML = proveedoresOrdenados.map((nombreProv, idx) => {
+                const items = mapaGrupos.get(nombreProv);
+                const grupoKey = `prov_${nombreProv}`;
+                const estaColapsado = !!gruposColapsados[grupoKey];
+
+                // Subtotales del proveedor
+                let totalVentaProv = 0;
+                let totalCostoProv = 0;
+                let pendientesPedirCount = 0;
+
+                items.forEach(item => {
+                    totalVentaProv += parseFloat(item.precioVenta) || 0;
+                    totalCostoProv += parseFloat(item.precioCosto) || 0;
+                    if (item.estado === 'Pendiente de pedir') pendientesPedirCount++;
+                });
+
+                const gananciaProv = totalVentaProv - totalCostoProv;
+
+                return `
+                <div class="bg-obsidian-800 rounded-2xl border border-obsidian-600/90 shadow-xl overflow-hidden transition">
+                    <!-- Cabecera del Grupo Proveedor -->
+                    <div onclick="toggleGrupoProveedor('${escaparJS(grupoKey)}')" class="bg-gradient-to-r from-obsidian-950 via-obsidian-900 to-obsidian-850 px-5 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer hover:bg-obsidian-900 transition border-b ${estaColapsado ? 'border-transparent' : 'border-gold-500/25'}">
+                        <div class="flex items-center gap-3">
+                            <!-- Flecha colapsar/expandir -->
+                            <div class="w-8 h-8 rounded-lg bg-obsidian-800 border border-obsidian-600 flex items-center justify-center text-gold-400 transition-transform duration-200 ${estaColapsado ? '-rotate-90' : ''}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="text-base sm:text-lg font-bold text-white tracking-tight">${escaparHTML(nombreProv)}</h3>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold-500/15 text-gold-300 border border-gold-500/30">
+                                        ${items.length} ${items.length === 1 ? 'artículo' : 'artículos'}
+                                    </span>
+                                    ${pendientesPedirCount > 0 ? `
+                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                        ${pendientesPedirCount} sin pedir aún
+                                    </span>` : ''}
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">Clic para ${estaColapsado ? 'expandir' : 'contraer'} el listado de este proveedor</p>
+                            </div>
+                        </div>
+
+                        <!-- Resumen Mayorista del Proveedor -->
+                        <div class="flex flex-wrap items-center gap-3 sm:gap-5 bg-obsidian-950/80 px-4 py-2.5 rounded-xl border border-obsidian-700">
+                            <div>
+                                <span class="block text-[10px] font-semibold uppercase tracking-wider text-rose-300/80">Costo a Pagar Prov.</span>
+                                <span class="text-sm sm:text-base font-bold text-rose-300">${formatearPlata(totalCostoProv)}</span>
+                            </div>
+                            <div class="h-7 w-[1px] bg-obsidian-700"></div>
+                            <div>
+                                <span class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total Venta</span>
+                                <span class="text-sm sm:text-base font-bold text-white">${formatearPlata(totalVentaProv)}</span>
+                            </div>
+                            <div class="h-7 w-[1px] bg-obsidian-700"></div>
+                            <div>
+                                <span class="block text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">Ganancia Grupo</span>
+                                <span class="text-sm sm:text-base font-bold ${gananciaProv >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                                    ${gananciaProv >= 0 ? '+' : ''}${formatearPlata(gananciaProv)}
+                                </span>
+                            </div>
+                            <!-- Botón rápido copiar lista de pedido para el proveedor -->
+                            <button type="button" onclick="event.stopPropagation(); copiarListaProveedor('${escaparJS(nombreProv)}')" title="Copiar lista de artículos para enviar al proveedor" class="ml-auto sm:ml-1 px-2.5 py-1.5 rounded-lg bg-gold-500/15 hover:bg-gold-500/25 text-gold-300 border border-gold-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                <span class="hidden sm:inline">Copiar pedido mayorista</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo del Grupo (Tabla en Desktop / Tarjetas en Móvil) -->
+                    <div class="${estaColapsado ? 'hidden' : 'block'}">
+                        <div class="hidden lg:block overflow-x-auto table-container">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-obsidian-900/60 border-b border-obsidian-700 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                        <th class="py-3 px-4">Cliente / Estado</th>
+                                        <th class="py-3 px-4">Artículo</th>
+                                        <th class="py-3 px-3 text-center">Nro / Talle</th>
+                                        <th class="py-3 px-3">Color</th>
+                                        <th class="py-3 px-4 text-right">Precio Venta</th>
+                                        <th class="py-3 px-4 text-right">Seña / Entrega</th>
+                                        <th class="py-3 px-4 text-right">Precio Costo</th>
+                                        <th class="py-3 px-4 text-right bg-obsidian-950/40">Balance</th>
+                                        <th class="py-3 px-4 text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-obsidian-700/60 text-sm">
+                                    ${items.map(p => generarHTMLFilaTabla(p, true)).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="lg:hidden divide-y divide-obsidian-700/60">
+                            ${items.map(p => generarHTMLTarjetaMovil(p, true)).join('')}
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function toggleGrupoProveedor(grupoKey) {
+            gruposColapsados[grupoKey] = !gruposColapsados[grupoKey];
+            renderizarPedidos();
+        }
+
+        // Copiar resumen mayorista para enviar por WhatsApp al proveedor
+        function copiarListaProveedor(nombreProv) {
+            const pedidosFiltrados = obtenerPedidosFiltrados().filter(p => {
+                const prov = (p.proveedor && p.proveedor.trim()) ? p.proveedor.trim() : 'Sin proveedor asignado';
+                return prov === nombreProv;
+            });
+
+            if (pedidosFiltrados.length === 0) return;
+
+            let texto = `📋 *Pedido TOLK IMPORTADOS - ${nombreProv}*\n\n`;
+            pedidosFiltrados.forEach((p, i) => {
+                texto += `${i + 1}. *${p.articulo}*`;
+                if (p.numero) texto += ` | Talle/Nro: ${p.numero}`;
+                if (p.color) texto += ` | Color: ${p.color}`;
+                texto += `\n`;
+            });
+            texto += `\nTotal artículos: ${pedidosFiltrados.length}`;
+
+            copiarAlPortapapeles(texto, `Lista de ${nombreProv} copiada`);
+        }
+
+        // Funciones del Modal de Formulario (Crear / Editar)
+        function abrirModalPedido(pedidoAEditar = null) {
+            const modal = document.getElementById('modalPedido');
+            const titulo = document.getElementById('modalTitulo');
+            const subtitulo = document.getElementById('modalSubtitulo');
+            const bannerEdicion = document.getElementById('bannerModoEdicion');
+            const textoEdicion = document.getElementById('textoModoEdicion');
+            const btnGuardar = document.getElementById('btnGuardarModal');
+            const btnCancelar = document.getElementById('btnCancelarModal');
+            const form = document.getElementById('formPedido');
+
+            form.reset();
+
+            if (pedidoAEditar) {
+                titulo.textContent = 'Editar Pedido';
+                subtitulo.textContent = 'Corrige los datos necesarios y guarda la actualización';
+                bannerEdicion.classList.remove('hidden');
+                textoEdicion.textContent = `Editando pedido de: ${pedidoAEditar.cliente} (${pedidoAEditar.articulo})`;
+                btnGuardar.textContent = 'Guardar Cambios';
+                btnCancelar.textContent = 'Cancelar Edición';
+
+                document.getElementById('pedidoId').value = pedidoAEditar.id;
+                document.getElementById('campoCliente').value = pedidoAEditar.cliente || '';
+                document.getElementById('campoEstado').value = pedidoAEditar.estado || 'Pendiente de pedir';
+                document.getElementById('campoArticulo').value = pedidoAEditar.articulo || '';
+                document.getElementById('campoNumero').value = pedidoAEditar.numero || '';
+                document.getElementById('campoColor').value = pedidoAEditar.color || '';
+                document.getElementById('campoProveedor').value = pedidoAEditar.proveedor || '';
+                document.getElementById('campoNotas').value = pedidoAEditar.notas || '';
+                document.getElementById('campoPrecioVenta').value = pedidoAEditar.precioVenta ?? '';
+                document.getElementById('campoSena').value = pedidoAEditar.sena ?? '';
+                document.getElementById('campoPrecioCosto').value = pedidoAEditar.precioCosto ?? '';
+            } else {
+                titulo.textContent = 'Nuevo Pedido';
+                subtitulo.textContent = 'Completa los datos del encargo y calcula el balance al instante';
+                bannerEdicion.classList.add('hidden');
+                btnGuardar.textContent = 'Guardar Pedido';
+                btnCancelar.textContent = 'Cancelar';
+
+                document.getElementById('pedidoId').value = '';
+                document.getElementById('campoEstado').value = 'Pendiente de pedir';
+            }
+
+            recalcularBalanceModal();
+            modal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('campoCliente').focus(), 50);
+        }
+
+        function cerrarModalPedido() {
+            document.getElementById('modalPedido').classList.add('hidden');
+        }
+
+        // Cálculo en vivo dentro del modal
+        function recalcularBalanceModal() {
+            const venta = parseFloat(document.getElementById('campoPrecioVenta').value) || 0;
+            const sena = parseFloat(document.getElementById('campoSena').value) || 0;
+            const costo = parseFloat(document.getElementById('campoPrecioCosto').value) || 0;
+
+            const ganancia = venta - costo;
+            const saldoCliente = venta - sena;
+
+            const elGanancia = document.getElementById('previewGanancia');
+            elGanancia.textContent = (ganancia >= 0 ? '+' : '') + formatearPlata(ganancia);
+            elGanancia.className = `text-lg font-bold ${ganancia >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            const elSaldo = document.getElementById('previewSaldoCliente');
+            if (saldoCliente <= 0 && venta > 0) {
+                elSaldo.textContent = 'Pagado ($0)';
+                elSaldo.className = 'text-lg font-bold text-emerald-400';
+            } else {
+                elSaldo.textContent = formatearPlata(Math.max(0, saldoCliente));
+                elSaldo.className = 'text-lg font-bold text-amber-400';
+            }
+        }
+
+        // Guardar o Actualizar Pedido
+        function guardarPedido(e) {
+            e.preventDefault();
+
+            const idExistente = document.getElementById('pedidoId').value;
+            const datosPedido = {
+                id: idExistente || generarId(),
+                cliente: document.getElementById('campoCliente').value.trim(),
+                estado: document.getElementById('campoEstado').value,
+                articulo: document.getElementById('campoArticulo').value.trim(),
+                numero: document.getElementById('campoNumero').value.trim(),
+                color: document.getElementById('campoColor').value.trim(),
+                proveedor: document.getElementById('campoProveedor').value.trim(),
+                notas: document.getElementById('campoNotas').value.trim(),
+                precioVenta: parseFloat(document.getElementById('campoPrecioVenta').value) || 0,
+                sena: parseFloat(document.getElementById('campoSena').value) || 0,
+                precioCosto: parseFloat(document.getElementById('campoPrecioCosto').value) || 0,
+                fechaActualizacion: new Date().toISOString()
+            };
+
+            if (idExistente) {
+                const index = pedidos.findIndex(p => p.id === idExistente);
+                if (index !== -1) {
+                    pedidos[index] = { ...pedidos[index], ...datosPedido };
+                    mostrarToast('Cambios guardados en el pedido');
+                }
+            } else {
+                datosPedido.fechaCreacion = new Date().toISOString();
+                pedidos.unshift(datosPedido);
+                mostrarToast('Pedido registrado en TOLK IMPORTADOS');
+            }
+
+            guardarEnStorage();
+            actualizarTodo();
+            cerrarModalPedido();
+        }
+
+        // Editar pedido existente
+        function editarPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (pedido) {
+                abrirModalPedido(pedido);
+            }
+        }
+
+        // Cambiar estado directamente desde la tabla/tarjeta
+        function cambiarEstadoRapido(id, nuevoEstado) {
+            const index = pedidos.findIndex(p => p.id === id);
+            if (index !== -1) {
+                pedidos[index].estado = nuevoEstado;
+                guardarEnStorage();
+                actualizarTodo();
+                mostrarToast(`Estado: ${nuevoEstado}`);
+            }
+        }
+
+        // Completar pago (iguala Seña al Precio Venta)
+        function completarPago(id) {
+            const index = pedidos.findIndex(p => p.id === id);
+            if (index !== -1) {
+                pedidos[index].sena = pedidos[index].precioVenta;
+                guardarEnStorage();
+                actualizarTodo();
+                mostrarToast('¡Pago completado al 100%!');
+            }
+        }
+
+        // Confirmación de eliminación
+        function confirmarEliminarPedido(id) {
+            const pedido = pedidos.find(p => p.id === id);
+            if (!pedido) return;
+
+            document.getElementById('confirmTitulo').textContent = '¿Eliminar este pedido?';
+            document.getElementById('confirmMensaje').textContent = `Se borrará el pedido de "${pedido.cliente}" (${pedido.articulo}).`;
+            
+            accionConfirmadaCallback = () => {
+                pedidos = pedidos.filter(p => p.id !== id);
+                guardarEnStorage();
+                actualizarTodo();
+                mostrarToast('Pedido eliminado');
+            };
+
+            document.getElementById('btnConfirmarAccion').onclick = () => {
+                if (accionConfirmadaCallback) accionConfirmadaCallback();
+                cerrarModalConfirmacion();
+            };
+
+            document.getElementById('modalConfirmacion').classList.remove('hidden');
+        }
+
+        function cerrarModalConfirmacion() {
+            document.getElementById('modalConfirmacion').classList.add('hidden');
+            accionConfirmadaCallback = null;
+        }
+
+        // Copiar resumen formateado para WhatsApp
+        function copiarResumenWhatsApp(id) {
+            const p = pedidos.find(item => item.id === id);
+            if (!p) return;
+
+            const venta = parseFloat(p.precioVenta) || 0;
+            const sena = parseFloat(p.sena) || 0;
+            const saldo = Math.max(0, venta - sena);
+
+            let texto = `✨ *TOLK IMPORTADOS - Detalle de Pedido*\n`;
+            texto += `• *Cliente:* ${p.cliente}\n`;
+            texto += `• *Artículo:* ${p.articulo}\n`;
+            if (p.numero) texto += `• *Número/Talle:* ${p.numero}\n`;
+            if (p.color) texto += `• *Color:* ${p.color}\n`;
+            texto += `• *Total:* ${formatearPlata(venta)}\n`;
+            texto += `• *Seña/Entregado:* ${formatearPlata(sena)}\n`;
+            texto += saldo > 0 
+                ? `• *Saldo pendiente:* ${formatearPlata(saldo)}\n`
+                : `• *Estado de pago:* Pagado completo ✅\n`;
+            texto += `• *Estado:* ${p.estado}`;
+
+            copiarAlPortapapeles(texto, 'Resumen copiado para WhatsApp');
+        }
+
+        function copiarAlPortapapeles(texto, mensajeExito) {
+            const textarea = document.createElement('textarea');
+            textarea.value = texto;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                mostrarToast(mensajeExito);
+            } catch (err) {
+                mostrarToast('No se pudo copiar el texto', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Limpiar buscador
+        function limpiarBusqueda() {
+            document.getElementById('inputBuscar').value = '';
+            renderizarPedidos();
+        }
+
+        // Exportación a Excel (.CSV con BOM UTF-8 y punto y coma)
+        function exportarCSV() {
+            if (pedidos.length === 0) {
+                mostrarToast('No hay pedidos para exportar', 'error');
+                return;
+            }
+
+            const cabeceras = [
+                'Cliente',
+                'Articulo',
+                'Numero',
+                'Color',
+                'Proveedor',
+                'Precio Venta',
+                'Sena o Entrega',
+                'Saldo Pendiente Cliente',
+                'Precio Costo',
+                'Balance (Ganancia Neta)',
+                'Estado',
+                'Observaciones'
+            ];
+
+            const filas = pedidos.map(p => {
+                const venta = parseFloat(p.precioVenta) || 0;
+                const sena = parseFloat(p.sena) || 0;
+                const costo = parseFloat(p.precioCosto) || 0;
+                const saldo = Math.max(0, venta - sena);
+                const ganancia = venta - costo;
+
+                return [
+                    escaparCSV(p.cliente),
+                    escaparCSV(p.articulo),
+                    escaparCSV(p.numero),
+                    escaparCSV(p.color),
+                    escaparCSV(p.proveedor),
+                    venta,
+                    sena,
+                    saldo,
+                    costo,
+                    ganancia,
+                    escaparCSV(p.estado),
+                    escaparCSV(p.notas || '')
+                ].join(';');
+            });
+
+            const contenidoCSV = '\uFEFF' + [cabeceras.join(';'), ...filas].join('\n');
+            const blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            const fechaHoy = new Date().toISOString().slice(0, 10);
+            link.href = url;
+            link.setAttribute('download', `TOLK_IMPORTADOS_Pedidos_${fechaHoy}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            mostrarToast('Archivo Excel (.csv) descargado');
+        }
+
+        function escaparCSV(texto) {
+            if (texto === null || texto === undefined) return '""';
+            const str = String(texto).replace(/"/g, '""');
+            return `"${str}"`;
+        }
+
+        // Exportar Respaldo JSON
+        function exportarJSON() {
+            if (pedidos.length === 0) {
+                mostrarToast('No hay datos para respaldar', 'error');
+                return;
+            }
+            const dataStr = JSON.stringify(pedidos, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            const fechaHoy = new Date().toISOString().slice(0, 10);
+            link.href = url;
+            link.setAttribute('download', `Respaldo_TOLK_IMPORTADOS_${fechaHoy}.json`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            mostrarToast('Copia de seguridad (.json) descargada');
+        }
+
+        // Importar Respaldo JSON
+        function importarJSON(event) {
+            const archivo = event.target.files[0];
+            if (!archivo) return;
+
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                try {
+                    const datosImportados = JSON.parse(e.target.result);
+                    if (Array.isArray(datosImportados)) {
+                        pedidos = datosImportados;
+                        guardarEnStorage();
+                        actualizarTodo();
+                        mostrarToast(`Se restauraron ${pedidos.length} pedidos`);
+                    } else {
+                        mostrarToast('El archivo no tiene el formato válido', 'error');
+                    }
+                } catch (err) {
+                    mostrarToast('Error al leer el archivo JSON', 'error');
+                }
+                event.target.value = '';
+            };
+            lector.readAsText(archivo);
+        }
+
+        // Cargar ejemplos de prueba
+        function cargarDatosEjemplo() {
+            const ejemplos = [
+                {
+                    id: generarId(),
+                    cliente: 'Laura Fernández',
+                    articulo: 'Zapatillas Importadas Urban',
+                    numero: '38',
+                    color: 'Blanco / Dorado',
+                    proveedor: 'Importadora Global',
+                    notas: 'Retira por showroom',
+                    precioVenta: 75000,
+                    sena: 35000,
+                    precioCosto: 44000,
+                    estado: 'Pedido al proveedor'
+                },
+                {
+                    id: generarId(),
+                    cliente: 'Carlos Méndez',
+                    articulo: 'Reloj Cronógrafo Acero',
+                    numero: 'Único',
+                    color: 'Negro / Oro',
+                    proveedor: 'Importadora Global',
+                    notas: 'Incluye estuche',
+                    precioVenta: 92000,
+                    sena: 92000,
+                    precioCosto: 51000,
+                    estado: 'Listo para entregar'
+                },
+                {
+                    id: generarId(),
+                    cliente: 'Sofía Martínez',
+                    articulo: 'Campera Importada Impermeable',
+                    numero: 'M',
+                    color: 'Negro Mate',
+                    proveedor: 'Textil Premium Mayorista',
+                    notas: '',
+                    precioVenta: 64000,
+                    sena: 20000,
+                    precioCosto: 36000,
+                    estado: 'Pendiente de pedir'
+                }
+            ];
+
+            pedidos = [...ejemplos, ...pedidos];
+            guardarEnStorage();
+            actualizarTodo();
+            mostrarToast('Se cargaron 3 pedidos de ejemplo');
+        }
+
+        // Toggle menú dropdown respaldo
+        function toggleMenuRespaldo() {
+            document.getElementById('menuRespaldo').classList.toggle('hidden');
+        }
+
+        // Notificación Toast
+        let toastTimeout;
+        function mostrarToast(mensaje, tipo = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMensaje = document.getElementById('toastMensaje');
+            const toastIcono = document.getElementById('toastIcono');
+
+            toastMensaje.textContent = mensaje;
+            if (tipo === 'error') {
+                toastIcono.className = 'text-rose-400';
+                toastIcono.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+            } else {
+                toastIcono.className = 'text-gold-400';
+                toastIcono.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Utilidades
+        function generarId() {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+        }
+
+        function escaparHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escaparJS(str) {
+            if (!str) return '';
+            return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+    </script>
+</body>
+</html>

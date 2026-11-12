@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <defs>
+        <linearGradient id="gm" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#faeaad"/>
+            <stop offset="35%" stop-color="#e5be49"/>
+            <stop offset="70%" stop-color="#c9961a"/>
+            <stop offset="100%" stop-color="#f3d06b"/>
+        </linearGradient>
+        <linearGradient id="strokeGradm" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff0b8"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#966909"/>
+        </linearGradient>
+    </defs>
+    <!-- Maskable full bleed background -->
+    <rect width="512" height="512" fill="#0b0c0e"/>
+    <!-- Scaled inside 80% safe zone (center 256, 256) -->
+    <g transform="translate(51.2, 51.2) scale(0.8)">
+        <polygon points="256,48 440,154 440,358 256,464 72,358 72,154" fill="#101216" stroke="url(#strokeGradm)" stroke-width="18" stroke-linejoin="miter"/>
+        <polygon points="256,72 416,164 416,348 256,440 96,348 96,164" fill="none" stroke="url(#gm)" stroke-width="3" opacity="0.4"/>
+        <rect x="140" y="196" width="232" height="14" rx="4" fill="url(#gm)"/>
+        <text x="256" y="296" text-anchor="middle" fill="url(#gm)" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="88" letter-spacing="6">TOL-K</text>
+        <rect x="140" y="324" width="232" height="14" rx="4" fill="url(#gm)"/>
+        <text x="256" y="380" text-anchor="middle" fill="#d4af37" opacity="0.8" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="20" letter-spacing="4">IMPORTADOS</text>
+    </g>
+</svg>

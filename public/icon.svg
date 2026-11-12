@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <defs>
+        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#faeaad"/>
+            <stop offset="35%" stop-color="#e5be49"/>
+            <stop offset="70%" stop-color="#c9961a"/>
+            <stop offset="100%" stop-color="#f3d06b"/>
+        </linearGradient>
+        <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff0b8"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#966909"/>
+        </linearGradient>
+    </defs>
+    <!-- Background -->
+    <rect width="512" height="512" fill="#0b0c0e" rx="104"/>
+    <!-- Subtle Inner Glow Ring -->
+    <circle cx="256" cy="256" r="230" fill="none" stroke="#d4af37" stroke-width="1.5" opacity="0.12"/>
+    <!-- Hexagonal Border -->
+    <polygon points="256,48 440,154 440,358 256,464 72,358 72,154" fill="#101216" stroke="url(#strokeGrad)" stroke-width="18" stroke-linejoin="miter"/>
+    <!-- Inner Accent Hexagon -->
+    <polygon points="256,72 416,164 416,348 256,440 96,348 96,164" fill="none" stroke="url(#g)" stroke-width="3" opacity="0.4"/>
+    <!-- Upper Gold Bar -->
+    <rect x="140" y="196" width="232" height="14" rx="4" fill="url(#g)"/>
+    <!-- TOL-K Core Text -->
+    <text x="256" y="296" text-anchor="middle" fill="url(#g)" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="88" letter-spacing="6">TOL-K</text>
+    <!-- Lower Gold Bar -->
+    <rect x="140" y="324" width="232" height="14" rx="4" fill="url(#g)"/>
+    <!-- Subtitle text -->
+    <text x="256" y="380" text-anchor="middle" fill="#d4af37" opacity="0.8" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="20" letter-spacing="4">IMPORTADOS</text>
+</svg>
