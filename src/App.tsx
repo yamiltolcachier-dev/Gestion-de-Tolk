@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { PackageOpen, Plus, Sparkles, Smartphone, Download } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { PackageOpen, Plus, Sparkles, Smartphone, Download, ShieldCheck } from 'lucide-react';
+import { User } from 'firebase/auth';
 import { Pedido, EstadoPedido, ModoVista, FiltroPago, ResumenFinanciero } from './types';
 import {
   STORAGE_KEY,
@@ -12,8 +13,23 @@ import {
   copiarAlPortapapeles,
   generarMensajeWhatsAppCliente,
   exportarCSV,
+  exportarCopiaSeguridadLocalStorage,
   formatearMes,
 } from './utils/helpers';
+import {
+  subscribeToAuth,
+  subscribeToOrders,
+  ensureUserProfile,
+  signInWithGoogle,
+  signOutFirebase,
+  createOrderInCloud,
+  updateOrderInCloud,
+  updateOrderStatusInCloud,
+  updateOrderPaymentInCloud,
+  deleteOrderInCloud,
+  syncLocalOrdersToCloud,
+  sanitizeOrderId,
+} from './firebase';
 import { Header } from './components/Header';
 import { DashboardStats } from './components/DashboardStats';
 import { FiltersBar } from './components/FiltersBar';
@@ -25,11 +41,12 @@ import { OrderModal } from './components/OrderModal';
 import { QRCodeModal } from './components/QRCodeModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { FirebaseSyncBar } from './components/FirebaseSyncBar';
 import { Toast } from './components/Toast';
 import { OfflineIndicator } from './components/OfflineIndicator';
 
 export default function App() {
-  const [pedidos, setPedidos] = useState<Pedido[]>(() => {
+  const [localPedidos, setLocalPedidos] = useState<Pedido[]>(() => {
     try {
       const guardado = localStorage.getItem(STORAGE_KEY);
       if (guardado) {
@@ -41,6 +58,13 @@ export default function App() {
     }
     return PEDIDOS_EJEMPLO;
   });
+
+  // Firebase Auth & Cloud Firestore state
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [cloudPedidos, setCloudPedidos] = useState<Pedido[]>([]);
+  const [syncingCloud, setSyncingCloud] = useState(false);
+  const prevCloudIdsRef = useRef<Set<string>>(new Set());
 
   // State for search and filters
   const [busqueda, setBusqueda] = useState('');
@@ -79,14 +103,99 @@ export default function App() {
     tipo: 'success',
   });
 
-  // Save to localStorage whenever pedidos change
+  // Save to localStorage whenever localPedidos change (preserves existing local persistence)
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pedidos));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localPedidos));
     } catch (err) {
       console.error('Error al guardar en localStorage:', err);
     }
-  }, [pedidos]);
+  }, [localPedidos]);
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsub = subscribeToAuth(async (firebaseUser) => {
+      setUser(firebaseUser);
+      setAuthReady(true);
+      if (firebaseUser) {
+        try {
+          await ensureUserProfile(firebaseUser);
+        } catch (err) {
+          console.error('Error al verificar perfil de usuario:', err);
+        }
+      } else {
+        setCloudPedidos([]);
+        prevCloudIdsRef.current = new Set();
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Listen to Firestore orders ONLY when authenticated
+  useEffect(() => {
+    if (!authReady || !user) return;
+
+    const unsub = subscribeToOrders(
+      user.uid,
+      (nextCloud) => {
+        const nextIds = new Set(nextCloud.map((o) => sanitizeOrderId(o.id)));
+        const removedFromCloud = new Set<string>();
+        prevCloudIdsRef.current.forEach((oldId) => {
+          if (!nextIds.has(oldId)) {
+            removedFromCloud.add(oldId);
+          }
+        });
+        prevCloudIdsRef.current = nextIds;
+
+        setCloudPedidos(nextCloud);
+
+        // Merge cloud updates into localPedidos without ever discarding unsynced local-only orders
+        setLocalPedidos((prevLocal) => {
+          const cloudById = new Map(nextCloud.map((c) => [sanitizeOrderId(c.id), c]));
+          const updatedLocal: Pedido[] = [];
+          const seenIds = new Set<string>();
+
+          prevLocal.forEach((loc) => {
+            const sid = sanitizeOrderId(loc.id);
+            if (removedFromCloud.has(sid)) {
+              // Deleted on another synced device
+              return;
+            }
+            const fromCloud = cloudById.get(sid);
+            updatedLocal.push(fromCloud || loc);
+            seenIds.add(sid);
+          });
+
+          // Prepend brand new orders coming from other devices
+          const newFromCloud = nextCloud.filter((c) => !seenIds.has(sanitizeOrderId(c.id)));
+          return [...newFromCloud, ...updatedLocal];
+        });
+      },
+      (err) => {
+        console.error('Error en sincronización de Firestore:', err);
+        mostrarToast('Error de permisos o conexión con Firebase', 'error');
+      }
+    );
+
+    return () => unsub();
+  }, [authReady, user]);
+
+  // Compute cloud-synced vs local-only orders
+  const cloudIdSet = useMemo(
+    () => new Set(cloudPedidos.map((o) => sanitizeOrderId(o.id))),
+    [cloudPedidos]
+  );
+
+  const localOnlyPedidos = useMemo(() => {
+    if (!user) return localPedidos;
+    return localPedidos.filter((p) => !cloudIdSet.has(sanitizeOrderId(p.id)));
+  }, [user, localPedidos, cloudIdSet]);
+
+  // Active pedidos list: if signed in, combines cloud + unsynced local orders so nothing is ever lost
+  const pedidos = useMemo(() => {
+    if (!user) return localPedidos;
+    return [...cloudPedidos, ...localOnlyPedidos];
+  }, [user, localPedidos, cloudPedidos, localOnlyPedidos]);
 
   const mostrarToast = (mensaje: string, tipo: 'success' | 'error' = 'success') => {
     setToast({ mensaje, tipo });
@@ -209,19 +318,77 @@ export default function App() {
     setFiltroPago('todos');
   };
 
-  // Actions on orders
-  const handleCambiarEstado = (id: string, nuevoEstado: EstadoPedido) => {
-    setPedidos((prev) =>
+  // Firebase Auth & Sync Handlers
+  const handleSignInGoogle = async () => {
+    setSyncingCloud(true);
+    try {
+      const loggedUser = await signInWithGoogle();
+      mostrarToast(`Conectado como ${loggedUser.displayName || loggedUser.email}`);
+    } catch (err) {
+      console.error('Error al iniciar sesión con Google:', err);
+      mostrarToast('No se pudo iniciar sesión con Google', 'error');
+    } finally {
+      setSyncingCloud(false);
+    }
+  };
+
+  const handleSignOutGoogle = async () => {
+    try {
+      await signOutFirebase();
+      mostrarToast('Sesión cerrada (tus datos locales siguen seguros)');
+    } catch {
+      mostrarToast('Error al cerrar sesión', 'error');
+    }
+  };
+
+  const handleUploadLocalToCloud = async () => {
+    if (!user || localOnlyPedidos.length === 0) return;
+    setSyncingCloud(true);
+    try {
+      const count = await syncLocalOrdersToCloud(user.uid, localOnlyPedidos);
+      mostrarToast(`¡${count} ${count === 1 ? 'pedido subido' : 'pedidos subidos'} a Firebase!`);
+    } catch (err) {
+      console.error('Error subiendo pedidos a la nube:', err);
+      mostrarToast('Error al subir pedidos a Firebase', 'error');
+    } finally {
+      setSyncingCloud(false);
+    }
+  };
+
+  // Actions on orders (writes to LocalStorage AND to Firestore when signed in)
+  const handleCambiarEstado = async (id: string, nuevoEstado: EstadoPedido) => {
+    setLocalPedidos((prev) =>
       prev.map((item) => (item.id === id ? { ...item, estado: nuevoEstado } : item))
     );
     mostrarToast(`Estado actualizado: ${nuevoEstado}`);
+
+    if (user && cloudIdSet.has(sanitizeOrderId(id))) {
+      try {
+        await updateOrderStatusInCloud(user.uid, id, nuevoEstado);
+      } catch (err) {
+        console.error('Error actualizando estado en la nube:', err);
+        mostrarToast('No se pudo sincronizar el cambio de estado', 'error');
+      }
+    }
   };
 
-  const handleCompletarPago = (id: string) => {
-    setPedidos((prev) =>
+  const handleCompletarPago = async (id: string) => {
+    const target = pedidos.find((p) => p.id === id);
+    if (!target) return;
+
+    setLocalPedidos((prev) =>
       prev.map((item) => (item.id === id ? { ...item, sena: item.precioVenta } : item))
     );
     mostrarToast('¡Pago saldado al 100%!');
+
+    if (user && cloudIdSet.has(sanitizeOrderId(id))) {
+      try {
+        await updateOrderPaymentInCloud(user.uid, id, target.precioVenta);
+      } catch (err) {
+        console.error('Error actualizando pago en la nube:', err);
+        mostrarToast('No se pudo sincronizar el pago en la nube', 'error');
+      }
+    }
   };
 
   const handleCopiarWhatsApp = async (p: Pedido) => {
@@ -246,26 +413,49 @@ export default function App() {
       mensaje: `Se borrará el encargo de "${p.cliente}" (${p.articulo}). Esta acción no se puede deshacer.`,
       textoConfirmar: 'Eliminar',
       esPeligroso: true,
-      accion: () => {
-        setPedidos((prev) => prev.filter((item) => item.id !== p.id));
-        mostrarToast('Pedido eliminado correctamente');
+      accion: async () => {
+        setLocalPedidos((prev) => prev.filter((item) => item.id !== p.id));
         setConfirmConfig((prev) => ({ ...prev, abierto: false }));
+        mostrarToast('Pedido eliminado correctamente');
+
+        if (user && cloudIdSet.has(sanitizeOrderId(p.id))) {
+          try {
+            await deleteOrderInCloud(user.uid, p.id);
+          } catch (err) {
+            console.error('Error eliminando pedido en la nube:', err);
+            mostrarToast('No se pudo eliminar en Firebase', 'error');
+          }
+        }
       },
     });
   };
 
-  const handleGuardarPedido = (pedidoGuardado: Pedido) => {
+  const handleGuardarPedido = async (pedidoGuardado: Pedido) => {
     if (pedidoAEditar) {
-      setPedidos((prev) =>
+      setLocalPedidos((prev) =>
         prev.map((item) => (item.id === pedidoGuardado.id ? pedidoGuardado : item))
       );
       mostrarToast('Pedido actualizado con éxito');
     } else {
-      setPedidos((prev) => [pedidoGuardado, ...prev]);
+      setLocalPedidos((prev) => [pedidoGuardado, ...prev]);
       mostrarToast('Nuevo pedido registrado en TOLK IMPORTADOS');
     }
     setModalPedidoAbierto(false);
     setPedidoAEditar(null);
+
+    if (user) {
+      try {
+        const yaEnNube = cloudIdSet.has(sanitizeOrderId(pedidoGuardado.id));
+        if (pedidoAEditar && yaEnNube) {
+          await updateOrderInCloud(user.uid, pedidoGuardado);
+        } else {
+          await createOrderInCloud(user.uid, pedidoGuardado);
+        }
+      } catch (err) {
+        console.error('Error guardando pedido en Firebase:', err);
+        mostrarToast('Guardado local ok, pero falló la sincronización en Firebase', 'error');
+      }
+    }
   };
 
   // Backups and sample loaders
@@ -277,7 +467,7 @@ export default function App() {
       try {
         const datos = JSON.parse(event.target?.result as string);
         if (Array.isArray(datos)) {
-          setPedidos(datos);
+          setLocalPedidos(datos);
           mostrarToast(`Se restauraron ${datos.length} pedidos`);
         } else {
           mostrarToast('Formato JSON no válido', 'error');
@@ -290,21 +480,34 @@ export default function App() {
     lector.readAsText(archivo);
   };
 
+  const handleExportarCopiaSeguridad = () => {
+    const resultado = exportarCopiaSeguridadLocalStorage();
+    if (resultado.ok) {
+      mostrarToast(
+        `Copia de seguridad descargada (${resultado.count} ${resultado.count === 1 ? 'pedido' : 'pedidos'})`
+      );
+    } else if (resultado.reason === 'empty') {
+      mostrarToast('No se encontraron pedidos guardados en LocalStorage', 'error');
+    } else {
+      mostrarToast('Error al exportar la copia de seguridad', 'error');
+    }
+  };
+
   const handleCargarEjemplos = () => {
-    setPedidos((prev) => [...PEDIDOS_EJEMPLO, ...prev]);
+    setLocalPedidos((prev) => [...PEDIDOS_EJEMPLO, ...prev]);
     mostrarToast('Se agregaron pedidos de prueba');
   };
 
   const handleLimpiarTodo = () => {
     setConfirmConfig({
       abierto: true,
-      titulo: '¿Borrar todos los pedidos?',
-      mensaje: 'Esta acción vaciará toda la lista de pedidos registrada en este dispositivo.',
+      titulo: '¿Borrar todos los pedidos locales?',
+      mensaje: 'Esta acción vaciará la lista local de pedidos en este dispositivo.',
       textoConfirmar: 'Borrar Todo',
       esPeligroso: true,
       accion: () => {
-        setPedidos([]);
-        mostrarToast('Todos los pedidos han sido eliminados');
+        setLocalPedidos([]);
+        mostrarToast('Todos los pedidos locales han sido eliminados');
         setConfirmConfig((prev) => ({ ...prev, abierto: false }));
       },
     });
@@ -346,6 +549,41 @@ export default function App() {
           >
             <Sparkles className="w-3 h-3 stroke-[2.5]" />
             <span>Instalar</span>
+          </button>
+        </div>
+
+        {/* Sincronización en la Nube (Firebase Auth + Firestore) */}
+        <FirebaseSyncBar
+          user={user}
+          authReady={authReady}
+          syncing={syncingCloud}
+          localOnlyCount={localOnlyPedidos.length}
+          cloudCount={cloudPedidos.length}
+          onSignIn={handleSignInGoogle}
+          onSignOut={handleSignOutGoogle}
+          onUploadLocal={handleUploadLocalToCloud}
+        />
+
+        {/* Botón Temporal de Respaldo Directo desde LocalStorage */}
+        <div className="bg-[#14171c] rounded-2xl p-3 sm:px-4 sm:py-3 border border-[#d4af37]/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shadow-lg">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] flex-shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Respaldo Preventivo (LocalStorage)</p>
+              <p className="text-[11px] text-slate-400">
+                Descarga todos tus pedidos guardados en este dispositivo antes de migrar.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleExportarCopiaSeguridad}
+            className="bg-gradient-to-r from-[#f3d06b] via-[#d4af37] to-[#b8860b] hover:from-[#fcebc2] hover:to-[#d4af37] text-[#08090b] font-extrabold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-[#d4af37]/20 transition active:scale-95 whitespace-nowrap"
+          >
+            <Download className="w-4 h-4 stroke-[2.5]" />
+            <span>EXPORTAR COPIA DE SEGURIDAD</span>
           </button>
         </div>
 

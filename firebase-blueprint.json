@@ -1,0 +1,160 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private user profile document representing the authenticated account owner.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Authentication UID.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user.",
+          "maxLength": 120
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the user record was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the user record was last updated."
+        }
+      },
+      "required": ["uid", "createdAt", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order tracked by TOLK IMPORTADOS with pricing, deposit, supplier, and monthly cycle.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique order identifier.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "UID of the authenticated user who owns this order.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "cliente": {
+          "type": "string",
+          "description": "Customer full name.",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "articulo": {
+          "type": "string",
+          "description": "Ordered item description.",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "numero": {
+          "type": "string",
+          "description": "Size or number.",
+          "maxLength": 60
+        },
+        "color": {
+          "type": "string",
+          "description": "Item color.",
+          "maxLength": 60
+        },
+        "proveedor": {
+          "type": "string",
+          "description": "Supplier name.",
+          "maxLength": 120
+        },
+        "precioVenta": {
+          "type": "number",
+          "description": "Sale price to customer."
+        },
+        "sena": {
+          "type": "number",
+          "description": "Deposit or paid amount."
+        },
+        "precioCosto": {
+          "type": "number",
+          "description": "Supplier cost price."
+        },
+        "estado": {
+          "type": "string",
+          "description": "Order fulfillment status.",
+          "enum": [
+            "Pendiente de pedir",
+            "Pedido al proveedor",
+            "Listo para entregar",
+            "Entregado"
+          ]
+        },
+        "notas": {
+          "type": "string",
+          "description": "Optional order notes.",
+          "maxLength": 500
+        },
+        "mesPedido": {
+          "type": "string",
+          "description": "Monthly campaign identifier (YYYY-MM).",
+          "maxLength": 20
+        },
+        "fechaCreacion": {
+          "type": "string",
+          "description": "ISO timestamp of initial creation.",
+          "maxLength": 40
+        },
+        "fechaActualizacion": {
+          "type": "string",
+          "description": "ISO timestamp of last edit.",
+          "maxLength": 40
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Firestore server timestamp on create."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Firestore server timestamp on update."
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "cliente",
+        "articulo",
+        "precioVenta",
+        "sena",
+        "precioCosto",
+        "estado",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores minimal private user profile document for ownership checks."
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": {
+        "$ref": "#/entities/Order"
+      },
+      "description": "Stores orders belonging to the authenticated user, synced across devices."
+    }
+  }
+}

@@ -188,6 +188,62 @@ export function exportarJSON(pedidos: Pedido[]) {
   return true;
 }
 
+export function exportarCopiaSeguridadLocalStorage(): {
+  ok: boolean;
+  count: number;
+  reason?: 'empty' | 'error';
+} {
+  try {
+    // Lectura directa y de solo lectura desde LocalStorage (sin modificar ni borrar datos)
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return { ok: false, count: 0, reason: 'empty' };
+    }
+
+    let dataStr = raw;
+    let count = 0;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        if (parsed.length === 0) {
+          return { ok: false, count: 0, reason: 'empty' };
+        }
+        count = parsed.length;
+      } else if (parsed && typeof parsed === 'object') {
+        count = 1;
+      }
+      // Se serializa preservando absolutamente todos los campos y valores existentes
+      dataStr = JSON.stringify(parsed, null, 2);
+    } catch {
+      // Si por algún motivo no fuera JSON válido, se exporta el contenido crudo sin alterarlo
+      dataStr = raw;
+    }
+
+    const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const ahora = new Date();
+    const fecha = ahora.toISOString().slice(0, 10);
+    const hora = `${String(ahora.getHours()).padStart(2, '0')}-${String(ahora.getMinutes()).padStart(2, '0')}`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `COPIA_SEGURIDAD_TOLK_${fecha}_${hora}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Limpieza diferida del ObjectURL para compatibilidad con navegadores móviles (iOS/Android)
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    return { ok: true, count };
+  } catch (err) {
+    console.error('Error al exportar copia de seguridad desde LocalStorage:', err);
+    return { ok: false, count: 0, reason: 'error' };
+  }
+}
+
 export function generarMensajeWhatsAppCliente(p: Pedido): string {
   const venta = Number(p.precioVenta) || 0;
   const sena = Number(p.sena) || 0;
